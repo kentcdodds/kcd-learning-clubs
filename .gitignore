@@ -26,3 +26,5 @@ yarn-error.log*
 
 *.ignored.*
 /ignored.*
+# Local Netlify folder
+.netlify
