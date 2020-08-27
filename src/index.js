@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import ky from 'ky'
+import netlifyIdentity from 'netlify-identity-widget'
 
 const api = ky.create({
   prefixUrl: `${process.env.REACT_APP_NETLIFY_FUNCTIONS_URL}/api`,
@@ -15,13 +16,12 @@ async function getUserInfo(code) {
   return result
 }
 
-function App() {
+function ConnectDiscord() {
   const [userInfo, setUserInfo] = React.useState(null)
   React.useEffect(() => {
     const fragment = new URLSearchParams(window.location.search.slice(1))
 
     if (fragment.has('code')) {
-      console.log('has code')
       getUserInfo(fragment.get('code'))
         .then(response => {
           setUserInfo(response)
@@ -37,6 +37,32 @@ function App() {
       </a>
       {userInfo ? <pre>{JSON.stringify(userInfo, null, 2)}</pre> : null}
     </>
+  )
+}
+
+function App() {
+  React.useEffect(() => {
+    console.log('initializing')
+    netlifyIdentity.init()
+    netlifyIdentity.on('init', (...args) => {
+      console.log('init', ...args)
+    })
+    netlifyIdentity.on('login', (...args) => {
+      console.log('login', ...args)
+    })
+    netlifyIdentity.on('logout', (...args) => {
+      console.log('logout', ...args)
+    })
+  }, [])
+
+  function handleLogin() {
+    netlifyIdentity.open('login')
+  }
+
+  return (
+    <div>
+      <button onClick={handleLogin}>Login</button>
+    </div>
   )
 }
 
