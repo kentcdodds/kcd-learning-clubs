@@ -52,12 +52,20 @@ function useAsync(initialState) {
     [safeSetState],
   )
 
-  const setData = React.useCallback(data => safeSetState({data}), [
-    safeSetState,
-  ])
-  const setError = React.useCallback(error => safeSetState({error}), [
-    safeSetState,
-  ])
+  const setData = React.useCallback(
+    data =>
+      safeSetState(currentState => ({
+        data: typeof data === 'function' ? data(currentState) : data,
+      })),
+    [safeSetState],
+  )
+  const setError = React.useCallback(
+    error =>
+      safeSetState(currentState => ({
+        error: typeof error === 'function' ? error(currentState) : error,
+      })),
+    [safeSetState],
+  )
   const reset = React.useCallback(() => safeSetState(initialStateRef.current), [
     safeSetState,
   ])

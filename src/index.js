@@ -9,6 +9,8 @@ const api = ky.create({
   retry: 0,
 })
 
+window.api = api
+
 async function getUserInfo(code) {
   const result = await api
     .get('resolve-discord-code', {searchParams: {code}})
@@ -43,7 +45,7 @@ function ConnectDiscord() {
 }
 
 function App() {
-  const {data, error, status, run} = useAsync()
+  const {data: user, error, status, run, setData} = useAsync()
   React.useEffect(() => {
     run(
       new Promise((resolve, reject) => {
@@ -54,6 +56,27 @@ function App() {
     )
   }, [run])
 
+  const expirationTime = user?.token?.expires_at
+  React.useEffect(() => {
+    if (!Number.isFinite(expirationTime)) return
+    console.log('refreshing in: ', expirationTime - Date.now())
+    const timeout = setTimeout(() => {
+      console.log('refreshing')
+      netlifyIdentity.refresh().then(access_token => {
+        setData(({data}) => {
+          return {
+            ...data,
+            token: {
+              ...data.token,
+              access_token,
+            },
+          }
+        })
+      })
+    }, expirationTime - Date.now())
+    return () => clearTimeout(timeout)
+  }, [expirationTime, setData, user])
+
   function handleLogin() {
     netlifyIdentity.open('login')
   }
@@ -61,7 +84,7 @@ function App() {
   function handleClick() {
     api.get('me', {
       headers: {
-        Authorization: `${data.token.token_type} ${data.token.access_token}`,
+        Authorization: `${user.token.token_type} ${user.token.access_token}`,
       },
     })
   }
@@ -70,9 +93,9 @@ function App() {
     <div>
       {status === 'pending' || status === 'idle' ? '...' : null}
       {status === 'resolved' ? (
-        data ? (
+        user ? (
           <>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
             <button onClick={handleClick}>Get Me</button>
           </>
         ) : (
