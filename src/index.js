@@ -16,6 +16,7 @@ async function getUserInfo(code) {
   return result
 }
 
+// eslint-disable-next-line
 function ConnectDiscord() {
   const [userInfo, setUserInfo] = React.useState(null)
   React.useEffect(() => {
