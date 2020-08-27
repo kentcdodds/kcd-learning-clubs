@@ -52,7 +52,7 @@ function App() {
         netlifyIdentity.init()
       }),
     )
-  }, [])
+  }, [run])
 
   function handleLogin() {
     netlifyIdentity.open('login')
