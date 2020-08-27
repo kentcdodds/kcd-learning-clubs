@@ -39,7 +39,15 @@ function handleGotError(error) {
 app.get(
   '/.netlify/functions/api/ping',
   handleError(async (req, res) => {
+    console.log(req.requestContext.identity)
     send(res, 200, 'pong')
+  }),
+)
+
+app.get(
+  '/.netlify/functions/api/me',
+  handleError(async (req, res) => {
+    send(res, 200, req.requestContext.identity)
   }),
 )
 

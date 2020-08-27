@@ -44,7 +44,6 @@ function ConnectDiscord() {
 function App() {
   React.useEffect(() => {
     console.log('initializing')
-    netlifyIdentity.init()
     netlifyIdentity.on('init', (...args) => {
       console.log('init', ...args)
     })
@@ -54,6 +53,7 @@ function App() {
     netlifyIdentity.on('logout', (...args) => {
       console.log('logout', ...args)
     })
+    netlifyIdentity.init()
   }, [])
 
   function handleLogin() {
