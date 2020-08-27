@@ -46,6 +46,7 @@ app.get(
 app.get(
   '/.netlify/functions/api/me',
   handleError(async (req, res) => {
+    console.log(req.context)
     if (req.context?.clientContext?.user) {
       send(res, 200, req.context?.clientContext?.user)
     } else {
@@ -85,6 +86,11 @@ app.get(
   }),
 )
 
-const handler = serverless(app)
+const handler = serverless(app, {
+  request(req, event, context) {
+    req.context = context
+    req.context.requestContext = event.requestContext
+  },
+})
 
 export {handler}
